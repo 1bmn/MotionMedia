@@ -3,556 +3,284 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MOTION//MEDIA — Dark Kinetic Typography</title>
+<meta name="description" content="MotionMedia — Video- & Motion-Editing Studio. Intros, Ads, Musik-Visualizer und beat-synced Kinetic Typography.">
+<title>MOTION//MEDIA — Video- & Motion-Editing Studio</title>
+<link rel="icon" href="brand-profile.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --accent:#00e5ff;
-    --accent2:#ff2fb9;
-    --bg:#050507;
+    --bg:#0b1023;
+    --bg2:#0e1430;
+    --panel:rgba(99,102,241,.07);
+    --indigo:#6366F1;
+    --violet:#8B5CF6;
+    --grad:linear-gradient(120deg,var(--indigo),var(--violet));
+    --text:#e7e9ff;
+    --muted:#9aa3c7;
+    --line:rgba(139,92,246,.22);
   }
   *{margin:0;padding:0;box-sizing:border-box}
-  html,body{height:100%;background:var(--bg);overflow:hidden;font-family:'JetBrains Mono',monospace}
-  #stage{position:fixed;inset:0;display:block}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--text);
+    font-family:'JetBrains Mono',monospace;line-height:1.7;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--violet);color:#fff}
 
-  /* ---------- overlays ---------- */
-  .overlay-god{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:26px;z-index:50;background:rgba(3,3,5,.82);backdrop-filter:blur(6px);transition:opacity .5s}
-  .overlay-god.hidden{opacity:0;pointer-events:none}
-  .brand{font-family:'Archivo Black',Impact,sans-serif;font-size:clamp(28px,5vw,54px);letter-spacing:.08em;color:#fff;text-transform:uppercase}
-  .brand em{font-style:normal;color:var(--accent)}
-  .big-btn{cursor:pointer;border:1px solid #2a2a33;background:linear-gradient(180deg,#101014,#0a0a0d);color:#fff;font-family:'Bebas Neue',Impact,sans-serif;font-size:clamp(30px,4.4vw,52px);letter-spacing:.18em;padding:14px 54px 10px;transition:.18s;box-shadow:0 0 0 rgba(0,229,255,0)}
-  .big-btn:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 40px rgba(0,229,255,.35),inset 0 0 18px rgba(0,229,255,.12);transform:translateY(-2px)}
-  .hint{color:#6a6a78;font-size:12px;letter-spacing:.25em;text-transform:uppercase}
+  /* ---------- ambient glow bg ---------- */
+  .glow{position:fixed;inset:0;z-index:-1;pointer-events:none}
+  .glow::before,.glow::after{content:'';position:absolute;border-radius:50%;filter:blur(120px)}
+  .glow::before{width:60vw;height:60vw;top:-25vw;left:-15vw;background:rgba(99,102,241,.18)}
+  .glow::after{width:55vw;height:55vw;bottom:-25vw;right:-15vw;background:rgba(139,92,246,.14)}
+  .gridbg{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+    background-image:linear-gradient(rgba(139,92,246,.05) 1px,transparent 1px),
+                     linear-gradient(90deg,rgba(139,92,246,.05) 1px,transparent 1px);
+    background-size:56px 56px;
+    mask-image:radial-gradient(ellipse at 50% 20%,#000 30%,transparent 75%);
+  }
 
-  /* ---------- zahlen (derzeit nicht möglich) ---------- */
-  .big-btn.small{font-size:clamp(17px,2.1vw,26px);letter-spacing:.22em;padding:10px 36px 7px;color:#ffb3c0;border-color:#4a1622}
-  .big-btn.small:hover{border-color:var(--accent2);color:var(--accent2);box-shadow:0 0 34px rgba(255,47,185,.3),inset 0 0 16px rgba(255,47,185,.1)}
-  .hud-btn.pay{border-color:#4a1622;color:#ff5c78}
-  .hud-btn.pay:hover{border-color:var(--accent2);color:var(--accent2);box-shadow:0 0 22px rgba(255,47,185,.25)}
-  .overlay-pay{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;background:rgba(3,3,5,.9);backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .35s}
-  .overlay-pay.open{opacity:1;pointer-events:auto}
-  .err-brand{color:#ff3355;font-size:clamp(22px,3.8vw,40px)}
-  .err-brand em{font-style:normal;color:var(--accent2)}
-  .err-box{max-width:min(680px,86vw);padding:24px 30px;border:1px solid #5a1520;background:linear-gradient(180deg,#150a0e,#0b0507);color:#ffb3c0;font-size:13px;letter-spacing:.06em;line-height:2;text-align:left;box-shadow:0 0 70px rgba(255,51,85,.14),inset 0 0 26px rgba(255,51,85,.06)}
-  .err-box .tag{display:block;color:#ff3355;letter-spacing:.3em;text-transform:uppercase;margin-bottom:8px;font-weight:700}
+  /* ---------- nav ---------- */
+  header{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;gap:26px;
+    padding:14px 5vw;background:rgba(11,16,35,.75);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .logo{font-family:'Archivo Black',Impact,sans-serif;font-size:19px;letter-spacing:.1em;color:#fff;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+  .logo em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  nav{margin-left:auto;display:flex;gap:20px;flex-wrap:wrap}
+  nav a{color:var(--muted);text-decoration:none;font-size:12px;letter-spacing:.14em;text-transform:uppercase;transition:.2s}
+  nav a:hover{color:#fff}
+  .nav-cta{border:1px solid var(--indigo);padding:7px 16px;border-radius:6px;color:#c7d2fe !important;transition:.2s}
+  .nav-cta:hover{background:var(--indigo);color:#fff !important;box-shadow:0 0 24px rgba(99,102,241,.45)}
 
-  /* ---------- HUD ---------- */
-  #hud{position:fixed;left:0;right:0;bottom:0;z-index:40;display:flex;align-items:center;gap:14px;padding:12px 18px;background:linear-gradient(0deg,rgba(4,4,6,.9),transparent);opacity:.25;transition:.3s}
-  #hud:hover{opacity:1}
-  .hud-btn{cursor:pointer;border:1px solid #2a2a33;background:#0c0c10;color:#cfcfda;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;padding:8px 14px;text-transform:uppercase;transition:.15s;user-select:none}
-  .hud-btn:hover{border-color:var(--accent);color:var(--accent)}
-  .hud-btn.rec{border-color:#5a1520;color:#ff3355}
-  .hud-btn.rec.active{background:#ff3355;color:#0a0004;animation:blink 1s steps(2) infinite}
-  @keyframes blink{50%{opacity:.55}}
-  #timeline{flex:1;height:3px;background:#1c1c22;position:relative;cursor:pointer}
-  #timeline .fill{position:absolute;inset:0 auto 0 0;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent2))}
-  #timecode{color:#8a8a98;font-size:11px;letter-spacing:.1em;min-width:96px;text-align:right}
+  main{padding-top:70px}
 
-  /* scanlines + vignette */
-  .scan{position:fixed;inset:0;z-index:30;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.28) 0 1px,transparent 1px 3px);mix-blend-mode:multiply;opacity:.55}
-  .vig{position:fixed;inset:0;z-index:31;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.75) 100%)}
+  /* ---------- hero ---------- */
+  .hero{min-height:calc(100vh - 70px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;text-align:center;padding:60px 6vw 80px}
+  .tagline{border:1px solid var(--line);color:#c7d2fe;font-size:11px;letter-spacing:.3em;text-transform:uppercase;padding:6px 18px;border-radius:99px;background:rgba(99,102,241,.08)}
+  h1{font-family:'Archivo Black',Impact,sans-serif;font-size:clamp(40px,8vw,96px);letter-spacing:.04em;color:#fff;text-transform:uppercase;line-height:1.05}
+  h1 em{font-style:normal;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero p{max-width:640px;color:var(--muted);font-size:15px}
+  .btns{display:flex;gap:16px;flex-wrap:wrap;justify-content:center}
+  .btn{cursor:pointer;font-family:'Bebas Neue',Impact,sans-serif;font-size:24px;letter-spacing:.16em;
+    padding:12px 38px 8px;text-decoration:none;text-transform:uppercase;transition:.2s;border-radius:6px}
+  .btn.primary{background:var(--grad);color:#fff;box-shadow:0 4px 30px rgba(99,102,241,.4)}
+  .btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 44px rgba(139,92,246,.55)}
+  .btn.ghost{border:1px solid var(--line);color:#c7d2fe;background:transparent}
+  .btn.ghost:hover{border-color:var(--violet);color:#fff;box-shadow:0 0 30px rgba(139,92,246,.3)}
+
+  /* ---------- sections ---------- */
+  section{padding:90px 6vw;max-width:1100px;margin:0 auto}
+  .kicker{color:var(--indigo);font-size:11px;letter-spacing:.32em;text-transform:uppercase;margin-bottom:10px}
+  h2{font-family:'Archivo Black',Impact,sans-serif;font-size:clamp(26px,4.4vw,44px);letter-spacing:.05em;color:#fff;text-transform:uppercase;margin-bottom:34px}
+  h2 em{font-style:normal;color:var(--violet)}
+
+  /* ---------- leistungen ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+  .card{border:1px solid var(--line);border-radius:12px;padding:26px 22px;background:var(--panel);transition:.25s}
+  .card:hover{transform:translateY(-4px);border-color:var(--indigo);box-shadow:0 10px 40px rgba(99,102,241,.22)}
+  .card .ico{font-size:26px;margin-bottom:12px;display:block}
+  .card h3{font-family:'Bebas Neue',Impact,sans-serif;font-size:23px;letter-spacing:.1em;color:#fff;margin-bottom:8px;text-transform:uppercase}
+  .card p{color:var(--muted);font-size:13px}
+
+  /* ---------- demo strip ---------- */
+  .demo-strip{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--panel);display:flex;align-items:center;gap:28px;flex-wrap:wrap;padding:34px}
+  .demo-strip .txt{flex:1;min-width:260px}
+  .demo-strip p{color:var(--muted);font-size:13px;margin-bottom:20px}
+
+  /* ---------- team ---------- */
+  .team{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px}
+  .member{border:1px solid var(--line);border-radius:12px;padding:26px 20px;text-align:center;background:var(--panel);transition:.25s}
+  .member:hover{border-color:var(--violet);box-shadow:0 8px 34px rgba(139,92,246,.2)}
+  .avatar{width:84px;height:84px;border-radius:50%;background:var(--grad);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;
+    font-family:'Archivo Black',Impact,sans-serif;font-size:32px;color:#fff;box-shadow:0 0 0 4px rgba(139,92,246,.15)}
+  .member h3{font-family:'Bebas Neue',Impact,sans-serif;font-size:21px;letter-spacing:.1em;color:#fff;text-transform:uppercase}
+  .member .role{color:var(--indigo);font-size:11px;letter-spacing:.2em;text-transform:uppercase;margin:4px 0 10px}
+  .member p{color:var(--muted);font-size:12px}
+
+  /* ---------- faq ---------- */
+  details{border:1px solid var(--line);border-radius:10px;background:var(--panel);margin-bottom:12px;overflow:hidden}
+  summary{cursor:pointer;padding:16px 22px;font-family:'Bebas Neue',Impact,sans-serif;font-size:19px;letter-spacing:.08em;color:#fff;text-transform:uppercase;list-style:none;display:flex;align-items:center;gap:12px;transition:.2s}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:'+';color:var(--violet);font-family:'JetBrains Mono',monospace;font-size:18px;transition:.25s}
+  details[open] summary::before{content:'−';transform:rotate(180deg)}
+  summary:hover{background:rgba(99,102,241,.1)}
+  details .a{padding:0 22px 18px;color:var(--muted);font-size:13px}
+
+  /* ---------- kontakt ---------- */
+  .contact{text-align:center}
+  .contact .mail{display:inline-block;margin:10px 0 26px;font-size:clamp(16px,3vw,26px);color:#c7d2fe;text-decoration:none;border-bottom:1px dashed var(--indigo);transition:.2s;word-break:break-all}
+  .contact .mail:hover{color:#fff;border-color:var(--violet)}
+
+  /* ---------- legal ---------- */
+  .legal{color:var(--muted);font-size:12.5px}
+  .legal h3{font-family:'Bebas Neue',Impact,sans-serif;font-size:20px;letter-spacing:.1em;color:#fff;margin:26px 0 10px;text-transform:uppercase}
+  .legal p{margin-bottom:10px}
+
+  /* ---------- footer ---------- */
+  footer{border-top:1px solid var(--line);padding:34px 6vw;display:flex;gap:18px;flex-wrap:wrap;align-items:center;color:var(--muted);font-size:12px}
+  footer .logo{font-size:15px}
+  footer a{color:var(--muted);text-decoration:none;margin-right:16px}
+  footer a:hover{color:#fff}
+  footer .copy{margin-left:auto}
+
+  @media(max-width:720px){
+    header{flex-wrap:wrap;gap:10px}
+    nav{margin-left:0;width:100%}
+    nav a{font-size:11px}
+  }
 </style>
 </head>
 <body>
 
-<canvas id="stage"></canvas>
+<div class="glow"></div>
+<div class="gridbg"></div>
 
-<div class="scan"></div>
-<div class="vig"></div>
+<header>
+  <a class="logo" href="#top">MOTION<em>//</em>MEDIA</a>
+  <nav>
+    <a href="#leistungen">Leistungen</a>
+    <a href="#team">Team</a>
+    <a href="#faq">FAQ</a>
+    <a href="#kontakt">Kontakt</a>
+    <a class="nav-cta" href="demo.html">▶ Demo</a>
+  </nav>
+</header>
 
-<!-- START overlay -->
-<div class="overlay-god" id="startOverlay">
-  <div class="brand">MOTION<em>//</em>MEDIA</div>
-  <button class="big-btn" id="startBtn">▶&nbsp; AB&nbsp;SPIELEN</button>
-  <button class="big-btn small" id="payBtnStart">⚠&nbsp; ZAHLEN&nbsp;/&nbsp;KAUFEN</button>
-  <div class="hint">Audio laden · Beat-Detection · Kinetic Type</div>
-</div>
+<main id="top">
 
-<!-- PAY overlay: Zahlung derzeit nicht möglich -->
-<div class="overlay-pay" id="payOverlay">
-  <div class="brand err-brand">⚠ ZAHLUNG <em>NICHT&nbsp;MÖGLICH</em></div>
-  <div class="err-box">
-    <span class="tag">ERR — NO_PAYMENT_AVAILABLE</span>
-    Derzeit besteht keine Möglichkeit zu zahlen.<br>
-    Unser Zahlungssystem ist noch nicht eingerichtet – daher kannst du zurzeit nichts bezahlen.<br>
-    Bitte versuche es später erneut.
+  <!-- HERO -->
+  <div class="hero">
+    <span class="tagline">Video- &amp; Motion-Editing Studio</span>
+    <h1>Wir machen<br>Motion <em>//</em> Media</h1>
+    <p>Schnitte mit Timing, Typografie mit Beat und Bilder, die in Bewegung bleiben.
+       Von der ersten Idee bis zum fertigen Clip – schneiden, animieren, ausliefern.</p>
+    <div class="btns">
+      <a class="btn primary" href="#kontakt">Projekt anfragen</a>
+      <a class="btn ghost" href="demo.html">▶ Demo ansehen</a>
+    </div>
   </div>
-  <button class="big-btn small" id="payCloseBtn">←&nbsp; ZURÜCK</button>
-  <div class="hint">esc oder klick nach außen schließt</div>
-</div>
 
-<!-- HUD -->
-<div id="hud">
-  <span class="hud-btn" id="playBtn">⏸ pause</span>
-  <span class="hud-btn" id="restartBtn">⟲ restart</span>
-  <span class="hud-btn pay" id="payBtnHud">⚠ zahlen</span>
-  <span class="hud-btn rec" id="recBtn">● record → webm</span>
-  <div id="timeline"><div class="fill"></div></div>
-  <span id="timecode">00:00 / 00:00</span>
-</div>
+  <!-- LEISTUNGEN -->
+  <section id="leistungen">
+    <div class="kicker">Was wir machen</div>
+    <h2>Leistungen <em>//</em></h2>
+    <div class="cards">
+      <div class="card"><span class="ico">🎬</span><h3>Video Editing</h3><p>Schnitt, Grading, Rhythmus. Kurz für Social oder lang für YouTube – mit Timing, das sitzt.</p></div>
+      <div class="card"><span class="ico">✨</span><h3>Motion Graphics</h3><p>Animated Intros, Lower Thirds, Logo-Animationen und Text-Animationen, die Hängen bleiben.</p></div>
+      <div class="card"><span class="ico">🎵</span><h3>Musik-Visualizer</h3><p>Beat-Detection, Kinetic Typography, Audio-reactive Visuals – Live-Demo auf dieser Website.</p></div>
+      <div class="card"><span class="ico">📣</span><h3>Ads &amp; Social Clips</h3><p>Werbeclips und Kurzformate für Instagram, TikTok &amp; YouTube – Format-fertig in jedem Aspect Ratio.</p></div>
+      <div class="card"><span class="ico">🧩</span><h3>Branding</h3><p>Intro/Outro-Pakete, Templates und Motion-Presets, damit dein Kanal Wiedererkennung bekommt.</p></div>
+      <div class="card"><span class="ico">🥁</span><h3>Beat-Sync</h3><p>Cuts und Animationen exakt auf Beat, Drop und Transition – Der Song treibt den Schnitt.</p></div>
+    </div>
+  </section>
+
+  <!-- DEMO -->
+  <section>
+    <div class="demo-strip">
+      <div class="txt">
+        <div class="kicker">Live-Demo</div>
+        <h2 style="font-size:clamp(22px,3.4vw,32px)">Beat-synced <em>Kinetic Type</em></h2>
+        <p>Unser Audio-Visualizer analysiert den Song per Beat-Detection und treibt Typografie,
+           Farbwechsel und Glitches in Echtzeit – direkt im Browser, ohne Plugins.</p>
+        <a class="btn primary" href="demo.html">▶ Demo starten</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- TEAM -->
+  <section id="team">
+    <div class="kicker">Wer wir sind</div>
+    <h2>Team <em>//</em></h2>
+    <div class="team">
+      <div class="member">
+        <div class="avatar">M</div>
+        <h3>Platzhalter 1</h3>
+        <div class="role">Founder · Editor</div>
+        <p>Schnitt &amp; Story – arbeitet den Rhythmus raus, den dein Content braucht.</p>
+      </div>
+      <div class="member">
+        <div class="avatar">P2</div>
+        <h3>Platzhalter 2</h3>
+        <div class="role">Motion Designer</div>
+        <p>Animiert Intros, Logos und Graphics – von Sketch bis Final Render.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="kicker">Häufige Fragen</div>
+    <h2>FAQ <em>//</em></h2>
+    <details open>
+      <summary>Wie läuft ein Projekt ab?</summary>
+      <div class="a">Du schreibst uns mit deiner Idee (kurze Nachricht reicht). Danach: Briefing → Rohschnitt → Feedback-Runden → Finalisierung &amp; Auslieferung. Alles per Mail oder Messenger.</div>
+    </details>
+    <details>
+      <summary>Wie lange dauert ein Edit?</summary>
+      <div class="a">Je nach Umfang: ein Social-Clip ist meist in 2–4 Tagen fertig, größere Projekte (Intros, Ads, lange Edits) innerhalb von 1–2 Wochen. Eiltermine auf Anfrage.</div>
+    </details>
+    <details>
+      <summary>Was kostet ein Video?</summary>
+      <div class="a">Das hängt von Länge, Aufwand und Format ab. Schreib uns kurz, was du brauchst – du bekommst schnell ein fixes Angebot.</div>
+    </details>
+    <details>
+      <summary>Womit arbeitet ihr?</summary>
+      <div class="a">Adobe After Effects &amp; Premiere Pro für Schnitt und Motion, dazu eigene Beat-Detection- und Visualizer-Tools (die Demo auf dieser Website ist damit gebaut).</div>
+    </details>
+    <details>
+      <summary>Kann ich Änderungswünsche einbringen?</summary>
+      <div class="a">Ja – Feedback-Runden sind Teil jedes Projekts. Solange die Richtung stimmt, feilen wir zusammen an Details.</div>
+    </details>
+  </section>
+
+  <!-- KONTAKT -->
+  <section id="kontakt" class="contact">
+    <div class="kicker">Schreib uns</div>
+    <h2>Kontakt <em>//</em></h2>
+    <p style="color:var(--muted);max-width:520px;margin:0 auto">
+      Du hast ein Projekt, eine Idee oder einfach eine Frage?
+      Eine kurze Nachricht reicht – wir melden uns zurück.
+    </p>
+    <a class="mail" href="mailto:kontakt@motionmedia.example">kontakt@motionmedia.example</a>
+    <br>
+    <a class="btn primary" href="mailto:kontakt@motionmedia.example">✉ Projekt anfragen</a>
+  </section>
+
+  <!-- IMPRESSUM & DATENSCHUTZ -->
+  <section id="impressum">
+    <div class="kicker">Rechtliches</div>
+    <h2>Impressum <em>&amp;</em> Datenschutz</h2>
+    <div class="legal">
+      <h3>Impressum</h3>
+      <p><strong>MotionMedia</strong><br>
+      [Straße &amp; Hausnummer]<br>
+      [PLZ &amp; Ort]<br>
+      [Land]</p>
+      <p>Kontakt: kontakt@motionmedia.example<br>
+      Vertreten durch: [Name]<br>
+      Verantwortlich für den Inhalt: [Name]</p>
+
+      <h3>Datenschutz</h3>
+      <p>Diese Website ist statisch und setzt keine Cookies. Es werden keine Tracker eingesetzt.
+      Beim Aufruf verarbeitet der Hoster (Cloudflare) technische Zugriffsdaten (z.&nbsp;B. IP-Adresse, Zeitpunkt)
+      serverseitig, um die Auslieferung zu sichern. Die Google-Fonts-Einbindung übermittelt die IP-Adresse an
+      Google-Server. Kontaktanfragen per E-Mail verwenden wir ausschließlich zur Beantwortung deiner Anfrage.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <span class="logo">MOTION<em>//</em>MEDIA</span>
+  <a href="demo.html">Demo</a>
+  <a href="#impressum">Impressum</a>
+  <a href="#impressum">Datenschutz</a>
+  <span class="copy">© <span id="year"></span> MotionMedia</span>
+</footer>
 
 <script>
-/* ================================================================
-   MOTION//MEDIA — dark beat-synced kinetic typography
-   Song: assets/song.mp3
-================================================================ */
-const canvas = document.getElementById('stage');
-const ctx = canvas.getContext('2d');
-const audioEl = new Audio('assets/song.mp3');
-audioEl.crossOrigin = 'anonymous';
-audioEl.preload = 'auto';
-
-let audioCtx, analyser, gainNode, mediaDest, freqData;
-let beats = [];            // beat onset times in seconds
-let songDuration = 0;
-let started = false;
-
-/* ---------- canvas sizing ---------- */
-function resize(){
-  const dpr = Math.min(window.devicePixelRatio||1, 2);
-  canvas.width  = innerWidth*dpr;
-  canvas.height = innerHeight*dpr;
-  canvas.style.width = innerWidth+'px';
-  canvas.style.height = innerHeight+'px';
-}
-addEventListener('resize', resize); resize();
-
-/* ================================================================
-   1) Beat detection (offline, energy/onset based)
-================================================================ */
-async function detectBeats(arrayBuffer){
-  const ac = new AudioContext();
-  const buf = await ac.decodeAudioData(arrayBuffer);
-  songDuration = buf.duration;
-
-  // low-band energy envelope (bass → drives the kicks)
-  const ch = buf.getChannelData(0);
-  const hop = 512, N = buf.length;
-  const lpA = 0.05;
-  let lp = 0, env = [], t = [];
-  for(let i=0;i<N;i+=hop){
-    let e = 0, end = Math.min(i+hop, N);
-    for(let j=i;j<end;j++){
-      lp += lpA * (ch[j]-lp);
-      e += lp*lp;
-    }
-    env.push(e); t.push(i/buf.sampleRate);
-  }
-  // spectral flux style onset = positive difference
-  const flux = env.map((v,i)=> i? Math.max(0, v-env[i-1]) : 0 );
-
-  // adaptive threshold + local maxima peak picking
-  const W = 16, MIN_GAP = 0.25;
-  beats = [];
-  let last = -99;
-  for(let i=1;i<flux.length-1;i++){
-    let a=Math.max(0,i-W), b=Math.min(flux.length,i+W), sum=0;
-    for(let k=a;k<b;k++) sum+=flux[k];
-    const mean = sum/(b-a);
-    const thr = mean*1.45 + 1e-7;
-    if(flux[i]>flux[i-1] && flux[i]>=flux[i+1] && flux[i]>thr){
-      const time = t[i];
-      if(time - last >= MIN_GAP){ beats.push(time); last = time; }
-    }
-  }
-  ac.close();
-}
-
-/* ================================================================
-   2) Timeline bauen: Phrasen auf Beats
-================================================================ */
-const PHRASES = [
-  'NO SIGNAL',
-  'DARK MODE\nON',
-  'TURN IT\nUP',
-  'FEEL THE\nBASS',
-  'SYSTEM\nOVERLOAD',
-  'FULL\nVOLUME',
-  'NEXT\nLEVEL',
-  'LOSE\nCONTROL',
-  'GAME\nOVER',
-];
-const PALETTE = ['#00e5ff','#ff2fb9','#ffe600','#ff3355','#7dff4d'];
-const ACCENT_WORDS = ['CHECK','BANG','BOOM','STRIKE','DROP','PULSE'];
-
-let scenes = [];  // {t0,t1,words[],palette[],beatTimes[],idx}
-function buildTimeline(){
-  scenes = [];
-  if(!beats.length) return;
-  const G = 8; // beats per scene
-  const n = Math.max(1, Math.floor((beats.length-1)/G));
-  for(let s=0;s<n;s++){
-    const bt = beats.slice(s*G, s*G+G);
-    if(bt.length<3) break;
-    const t0 = bt[0], t1 = (bt[G] !== undefined ? bt[G] : songDuration - 1.2) + 0.05;
-    scenes.push({
-      t0, t1, beatTimes: bt, idx:s,
-      words: PHRASES[s % PHRASES.length].split('\n'),
-      colors: [PALETTE[s % PALETTE.length], PALETTE[(s+2)%PALETTE.length]],
-    });
-  }
-}
-
-/* ================================================================
-   3) Visual helpers
-================================================================ */
-let shakeT = 0, kickFlash = 0, rgbSplit = 0, gridSpeed = 1;
-let beatEnv = 0; // 0..1 instant energy
-function envFromTime(time){
-  // energy pulse based on distance to nearest beat
-  let best = 1e9;
-  for(const b of beats){
-    const d = time - b;
-    if(d < -0.3) break;
-    if(d>=0 && d<best) best = d;
-  }
-  const decay = Math.exp(-best*9);
-  const attack = best<0 ? Math.exp((best+0.3)*30) : 0;
-  return Math.min(1, Math.max(decay, attack));
-}
-
-// particles
-const parts = [];
-function spawnBurst(x,y,color,n){
-  for(let i=0;i<n;i++){
-    const a = Math.random()*Math.PI*2;
-    const sp = 200 + Math.random()*700;
-    parts.push({x,y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:1,color,size:1+Math.random()*3});
-  }
-}
-
-// scanline/noise helpers
-function drawNoise(w,h,dt){
-  if(Math.random()<0.4) return;
-  ctx.save();
-  ctx.globalAlpha = 0.05;
-  ctx.fillStyle = '#fff';
-  for(let i=0;i<40;i++){
-    ctx.fillRect(Math.random()*w, Math.random()*h, Math.random()*90, 1);
-  }
-  ctx.restore();
-}
-
-function drawGrid(w,h,time){
-  ctx.save();
-  ctx.strokeStyle = 'rgba(0,229,255,0.16)';
-  ctx.lineWidth = Math.max(1, w*0.0016);
-  const horizon = h*0.62;
-  // floor lines moving toward viewer
-  const lines = 14;
-  for(let i=0;i<lines;i++){
-    const f = ((i/lines) + (time*gridSpeed*0.55)% (1/lines)*(1)) %1;
-    // perspective spacing: exp
-    const p = Math.pow(f,2.4);
-    const y = horizon + p*(h-horizon)*1.15;
-    if(y>horizon){
-      ctx.globalAlpha = 0.5*f+0.08;
-      ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
-    }
-  }
-  // vertical vanishing
-  ctx.globalAlpha = 0.35;
-  for(let i=-10;i<=10;i++){
-    ctx.beginPath();
-    ctx.moveTo(w/2 + i*w*0.04, horizon);
-    ctx.lineTo(w/2 + i*w*0.55, h);
-    ctx.stroke();
-  }
-  // horizon glow
-  ctx.globalAlpha = 1;
-  const g = ctx.createLinearGradient(0,horizon-40,0,horizon+90);
-  g.addColorStop(0,'rgba(0,229,255,0)');
-  g.addColorStop(.5,'rgba(0,229,255,0.25)');
-  g.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=g; ctx.fillRect(0,horizon-40,w,130);
-  ctx.restore();
-}
-
-/* ---------- big glitch typography ---------- */
-function drawWords(w,h,time,scene){
-  const {words, colors, beatTimes, t0, t1} = scene;
-  const sceneP = (time-t0)/(t1-t0);
-
-  // reveal: word i appears near beat i+1
-  let shown = 1;
-  for(let i=1;i<words.length;i++){
-    if(time >= beatTimes[Math.min(i+1, beatTimes.length-1)] - 0.05) shown = i+1;
-  }
-
-  const accent = colors[0];
-  const size = Math.min(w,h) * (words.join(' ').length>9 ? 0.13 : 0.17);
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.font = `${size}px 'Archivo Black', Impact, 'Arial Black', sans-serif`;
-
-  let y = h*0.44;
-  const lineH = size*1.12;
-  const n = words.length;
-  const startY = y - (n-1)*lineH/2;
-
-  for(let i=0;i<shown;i++){
-    const wi = words[i];
-    const showTime = i===0 ? beatTimes[0] : beatTimes[Math.min(i+1,beatTimes.length-1)];
-    const a = Math.max(0, Math.min(1, (time-showTime)/0.12)); // drop-in anim
-    const ease = 1-Math.pow(1-a,4);
-    const wWidth = ctx.measureText(wi).width;
-
-    // per-beat punch of the whole word
-    const envie = envFromTime(time);
-    const scale = (1.5 - 0.5*ease) * (1 + 0.06*envie);
-    const yy = startY + i*lineH;
-    const drop = (1-ease)*size*0.35;
-
-    ctx.save();
-    ctx.translate(w/2, yy+drop);
-    ctx.scale(scale, scale);
-
-    // white core word
-    ctx.globalAlpha = 0.25 + 0.75*ease;
-    ctx.fillStyle = '#fff';
-    ctx.shadowColor = accent; ctx.shadowBlur = 42*(0.4+envie);
-    ctx.fillText(wi,0,0);
-    ctx.shadowBlur = 0;
-
-    // rgb split glitch after the word landed
-    const split = rgbSplit*(2 + 14*envie) + (sceneP>0.85 ? 16 : 0);
-    if(split>0.4){
-      ctx.globalCompositeOperation='screen';
-      ctx.globalAlpha = 0.8;
-      ctx.fillStyle= '#ff004c';
-      ctx.fillText(wi, -split, 0);
-      ctx.fillStyle= '#00fff7';
-      ctx.fillText(wi, split, 0);
-    }
-    // accent slice bar under last visible word
-    if(i===shown-1){
-      const bw = wWidth*1.15;
-      ctx.globalAlpha = .9;
-      ctx.fillStyle = accent;
-      ctx.fillRect(-bw/2, size*0.62, bw, Math.max(2,size*0.035));
-      ctx.globalAlpha = .55;
-      ctx.fillStyle = colors[1];
-      ctx.fillRect(-bw/4 + Math.sin(time*7)*bw*0.1, size*0.62 + size*0.07, bw/2, Math.max(2,size*0.02));
-    }
-    ctx.restore();
-  }
-
-  // scene index marker + accent echo word
-  ctx.save();
-  ctx.translate(w, h*0.2);
-  ctx.textAlign='right';
-  ctx.font = `${Math.min(w,h)*0.028}px 'JetBrains Mono', monospace`;
-  ctx.fillStyle = 'rgba(255,255,255,0.5)';
-  ctx.fillText(String(scene.idx+1).padStart(2,'0')+' / '+String(scenes.length).padStart(2,'0'), 0, 0);
-  ctx.textAlign='center';
-  ctx.font = `${Math.min(w,h)*0.032}px 'Bebas Neue', Impact, sans-serif`;
-  ctx.fillStyle = colors[1];
-  ctx.globalAlpha = 0.7;
-  ctx.fillText(ACCENT_WORDS[scene.idx % ACCENT_WORDS.length], 0, -Math.min(w,h)*0.04);
-  ctx.restore();
-}
-
-/* ---------- intro & outro ---------- */
-function drawIntro(w,h,time){
-  ctx.save();
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  const c = '#00e5ff';
-  ctx.font = `${Math.min(w,h)*0.035}px 'JetBrains Mono', monospace`;
-  ctx.fillStyle='rgba(255,255,255,.6)';
-  const dots = '.'.repeat(1+Math.floor((time*3)%3));
-  ctx.fillText('LOADING'+dots, w/2, h*0.42);
-  ctx.textAlign='left';
-  ctx.font = `${Math.min(w,h)*0.022}px 'JetBrains Mono', monospace`;
-  ctx.fillStyle='rgba(255,255,255,.35)';
-  const bls = ['> analyze audio…','> detect onsets…','> sync typography…','> load palette…'];
-  bls.forEach((b,i)=>{ if(time>0.15+i*0.2) ctx.fillText(b, w*0.12, h*(0.52+i*0.038)); });
-  const g = ctx.createLinearGradient(w*0.4,0,w*0.6,0);
-  g.addColorStop(0,'rgba(0,229,255,0)'); g.addColorStop(.5,c); g.addColorStop(1,'rgba(0,229,255,0)');
-  ctx.fillStyle=g; ctx.fillRect(w*0.4,h*0.46,w*0.2,1.5);
-  ctx.restore();
-}
-
-function drawOutro(w,h,time){
-  const p = Math.min(1,(time-(songDuration-1.6))/0.6);
-  ctx.save();
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.font = `${Math.min(w,h)*0.14}px 'Archivo Black', Impact, sans-serif`;
-  ctx.globalAlpha = p;
-  ctx.fillStyle='#fff';
-  ctx.shadowColor='#00e5ff'; ctx.shadowBlur=60;
-  ctx.fillText('MOTION//MEDIA', w/2, h*0.45);
-  ctx.shadowBlur=0;
-  ctx.font = `${Math.min(w,h)*0.026}px 'JetBrains Mono', monospace`;
-  ctx.fillStyle='rgba(255,255,255,.55)';
-  ctx.fillText('DARK SESSION · BEAT-SYNCED ·', w/2, h*0.58);
-  ctx.restore();
-}
-
-/* ---------- audio-reactive side bars (spectrum) ---------- */
-function drawSpectrum(w,h,time){
-  if(!freqData) return;
-  analyser.getByteFrequencyData(freqData);
-  const bars = 64;
-  const bw = w/bars;
-  ctx.save();
-  for(let i=0;i<bars;i++){
-    const v = freqData[i]/255;
-    const bh = v*h*0.16;
-    const hue = 180 + i*2;
-    ctx.fillStyle = `hsla(${hue},100%,60%,${0.10+v*0.22})`;
-    // bottom edge mirror
-    ctx.fillRect(i*bw, h-bh, bw-1, bh);
-    ctx.fillRect(i*bw, 0, bw-1, bh*0.7);
-  }
-  ctx.restore();
-}
-
-/* ================================================================
-   4) Main render loop
-================================================================ */
-let lastFrame = performance.now();
-function frame(){
-  requestAnimationFrame(frame);
-  if(!started) return;
-  const now = performance.now();
-  const dt = Math.min(0.05,(now-lastFrame)/1000); lastFrame = now;
-  const time = audioEl.currentTime;
-
-  const w = canvas.width, h = canvas.height;
-  const envie = envFromTime(time);
-  beatEnv = envie;
-
-  // global reactions on beat
-  if(envie>0.86 && kickFlash<=0){ kickFlash = 0.12; shakeT = 0.09; rgbSplit = 3; spawnBurst(w/2, h*0.44, PALETTE[Math.floor(Math.random()*PALETTE.length)], 14); }
-  kickFlash = Math.max(0, kickFlash-dt*4);
-  shakeT = Math.max(0, shakeT-dt);
-  rgbSplit = Math.max(0, rgbSplit-dt*22);
-
-  // bg
-  ctx.fillStyle = '#050507';
-  ctx.fillRect(0,0,w,h);
-
-  drawSpectrum(w,h,time);
-  drawGrid(w,h,time);
-
-  // shake transform for everything above grid
-  ctx.save();
-  if(shakeT>0){ const s = shakeT/0.09; ctx.translate((Math.random()-0.5)*14*w/1920*s, (Math.random()-0.5)*10*w/1920*s); }
-
-  // particles
-  ctx.save();
-  for(let i=parts.length-1;i>=0;i--){
-    const p=parts[i];
-    p.x+=p.vx*dt; p.y+=p.vy*dt; p.vx*=0.92; p.vy*=0.92; p.life-=dt*1.6;
-    if(p.life<=0){ parts.splice(i,1); continue; }
-    ctx.globalAlpha = p.life*0.8;
-    ctx.fillStyle = p.color;
-    ctx.fillRect(p.x, p.y, p.size*w/1920*2, p.size*w/1920*2);
-  }
-  ctx.restore();
-
-  // content
-  if(time < (beats[0] ?? 2)){
-    drawIntro(w,h,time);
-  }
-  const scene = scenes.find(s=> time>=s.t0 && time<s.t1);
-  if(scene) drawWords(w,h,time,scene);
-
-  if(time > songDuration-1.6) drawOutro(w,h,time);
-
-  // flash on kick
-  if(kickFlash>0){
-    ctx.globalCompositeOperation='screen';
-    ctx.fillStyle = `rgba(0,229,255,${kickFlash*0.9})`;
-    ctx.fillRect(0,0,w,h);
-    ctx.globalCompositeOperation='source-over';
-  }
-
-  drawNoise(w,h,dt);
-  ctx.restore();
-
-  // HUD updates
-  document.querySelector('#timeline .fill').style.width = (time/songDuration*100)+'%';
-  const fmt = t=>{ t=Math.max(0,t); const m=Math.floor(t/60), s=Math.floor(t%60); return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); };
-  document.getElementById('timecode').textContent = fmt(time)+' / '+fmt(songDuration);
-}
-requestAnimationFrame(frame);
-
-/* ================================================================
-   5) Boot & controls
-================================================================ */
-const startOverlay = document.getElementById('startOverlay');
-document.getElementById('startBtn').addEventListener('click', async ()=>{
-  const ab = await fetch('assets/song.mp3').then(r=>r.arrayBuffer());
-  await detectBeats(ab.slice(0));
-  buildTimeline();
-
-  audioCtx = new AudioContext();
-  const src = audioCtx.createMediaElementSource(audioEl);
-  analyser = audioCtx.createAnalyser(); analyser.fftSize = 1024;
-  freqData = new Uint8Array(analyser.frequencyBinCount);
-  gainNode = audioCtx.createGain();
-  mediaDest = audioCtx.createMediaStreamDestination();
-  src.connect(analyser); analyser.connect(gainNode);
-  gainNode.connect(audioCtx.destination);
-  gainNode.connect(mediaDest);
-
-  started = true;
-  startOverlay.classList.add('hidden');
-  audioEl.currentTime = 0;
-  await audioEl.play();
-});
-
-const playBtn = document.getElementById('playBtn');
-playBtn.addEventListener('click', ()=>{
-  if(audioEl.paused){ audioEl.play(); playBtn.textContent='⏸ pause'; }
-  else { audioEl.pause(); playBtn.textContent='▶ play'; }
-});
-document.getElementById('restartBtn').addEventListener('click', ()=>{ audioEl.currentTime=0; audioEl.play(); });
-document.getElementById('timeline').addEventListener('click', e=>{
-  const r = e.currentTarget.getBoundingClientRect();
-  audioEl.currentTime = (e.clientX-r.left)/r.width*songDuration;
-});
-audioEl.addEventListener('ended', ()=>{
-  setTimeout(()=>{ startOverlay.classList.remove('hidden'); audioEl.currentTime=0; }, 1800);
-});
-
-/* ---------- zahlen: momentan keine Zahlung möglich ---------- */
-const payOverlay = document.getElementById('payOverlay');
-const openPay  = ()=> payOverlay.classList.add('open');
-const closePay = ()=> payOverlay.classList.remove('open');
-document.getElementById('payBtnHud').addEventListener('click', openPay);
-document.getElementById('payBtnStart').addEventListener('click', openPay);
-document.getElementById('payCloseBtn').addEventListener('click', closePay);
-payOverlay.addEventListener('click', e=>{ if(e.target===payOverlay) closePay(); });
-addEventListener('keydown', e=>{ if(e.key==='Escape') closePay(); });
-
-/* ---------- recording (canvas + audio → webm) ---------- */
-let recorder = null;
-const recBtn = document.getElementById('recBtn');
-recBtn.addEventListener('click', ()=>{
-  if(recorder && recorder.state==='recording'){ recorder.stop(); return; }
-  const fps = 60;
-  const stream = canvas.captureStream(fps);
-  if(mediaDest) mediaDest.stream.getAudioTracks().forEach(t=>stream.addTrack(t));
-  const mime = ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'].find(m=>MediaRecorder.isTypeSupported(m)) || '';
-  recorder = new MediaRecorder(stream, {mimeType:mime, videoBitsPerSecond:14_000_000});
-  const chunks=[];
-  recorder.ondataavailable = e=>{ if(e.data.size) chunks.push(e.data); };
-  recorder.onstop = ()=>{
-    const blob = new Blob(chunks,{type:'video/webm'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'motionmedia-motion.webm';
-    a.click();
-    setTimeout(()=>URL.revokeObjectURL(a.href), 5000);
-    recBtn.classList.remove('active'); recBtn.textContent='● record → webm';
-  };
-  audioEl.currentTime = 0; audioEl.play(); playBtn.textContent='⏸ pause';
-  recorder.start();
-  recBtn.classList.add('active'); recBtn.textContent='⏺ recording… (klick zum stoppen)';
-});
+document.getElementById('year').textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
