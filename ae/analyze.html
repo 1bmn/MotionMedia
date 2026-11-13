@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>AE Beat Analyzer</title></head>
+<body style="background:#050507;color:#0f0;font-family:monospace">
+<pre id="out">running…</pre>
+<script>
+(async function(){
+  const out = document.getElementById('out');
+  try{
+    const buf = await fetch('../assets/song.mp3').then(r=>r.arrayBuffer());
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    const audio = await ac.decodeAudioData(buf);
+    const duration = audio.duration;
+    const ch = audio.getChannelData(0);
+    const hop = 512, N = audio.length, sr = audio.sampleRate;
+
+    // --- bass envelope ---
+    let lp=0; const env=[], times=[];
+    for(let i=0;i<N;i+=hop){
+      let e=0, end=Math.min(i+hop,N);
+      for(let j=i;j<end;j++){ lp += 0.05*(ch[j]-lp); e += lp*lp; }
+      env.push(e); times.push(i/sr);
+    }
+    const flux = env.map((v,i)=> i? Math.max(0, v-env[i-1]) : 0);
+
+    // --- beat picking (adaptive threshold, local maxima, min gap .25s) ---
+    const W=16, MIN=0.25; const beats=[]; let last=-99;
+    for(let i=1;i<flux.length-1;i++){
+      let a=Math.max(0,i-W), b=Math.min(flux.length,i+W), s=0;
+      for(let k=a;k<b;k++) s+=flux[k];
+      if(flux[i]>flux[i-1] && flux[i]>=flux[i+1] && flux[i] > (s/(b-a))*1.45 && times[i]-last>=MIN){ beats.push(+times[i].toFixed(3)); last=times[i]; }
+    }
+
+    // --- amplitude envelope: RMS per frame, resampled to 30/sec, 0..100 ---
+    // hop-level RMS (total band, not just bass)
+    const rms=[]; let mx=0;
+    for(let i=0;i<N;i+=hop){
+      let e=0, c=0, end=Math.min(i+hop,N);
+      for(let j=i;j<end;j++){ e+=ch[j]*ch[j]; c++; }
+      const v=Math.sqrt(e/(c||1)); rms.push(v); if(v>mx) mx=v;
+    }
+    const rate=30, amp=[];
+    for(let t=0;t<duration;t+=1/rate){
+      const f0=Math.floor(t*sr/hop), f1=Math.min(rms.length, Math.floor((t+1/rate)*sr/hop));
+      let m=0; for(let k=f0;k<f1;k++) m=Math.max(m,rms[k]);
+      amp.push(Math.round(m/mx*100));
+    }
+
+    window.__RESULT__ = { duration: +duration.toFixed(2), beats, amp, ampRate: rate };
+    out.textContent = 'OK duration=' + duration.toFixed(2) + 's beats=' + beats.length + ' ampFrames=' + amp.length;
+  }catch(err){
+    out.textContent = 'ERR ' + err.message;
+    window.__RESULT__ = null;
+  }
+})();
+</script>
+</body></html>
